@@ -142,6 +142,11 @@ func (r *Reader) loadBits(nbits uint) error {
 			r.ahead.set(r.buf[:n])
 			continue
 		}
+		if err == io.EOF {
+			println("EOF")
+			return nil
+		}
+
 		if err != nil {
 			if err == io.EOF && r.curr.n+r.ahead.n != 0 {
 				err = ErrTooLessBits

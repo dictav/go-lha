@@ -3,6 +3,7 @@ package lha
 import (
 	"log"
 	"os"
+	"time"
 )
 
 type headerReader func(r *Reader) (*Header, error)
@@ -15,9 +16,48 @@ var headerReaders = map[byte]headerReader{
 }
 
 func readHeaderLv0(r *Reader) (*Header, error) {
-	log.Println("readHeader:", 0)
-	// TODO: support header LV0
-	return nil, nil
+	if r.err != nil {
+		return nil, r.err
+	}
+	h := new(Header)
+	size, _ := r.readUint8()
+	h.Size = uint16(size)
+	_, _ = r.readUint8()
+	//hhcs := uint16(hcs)
+	//h.HeaderCRC = &hhcs
+	h.Method, _ = r.readStringN(5)
+	println("method", h.Method)
+	packedSize, _ := r.readUint32()
+	h.PackedSize = uint64(packedSize)
+	originalSize, _ := r.readUint32()
+	h.OriginalSize = uint64(originalSize)
+
+	// Conver DOS Time Format to time.Time: https://msdn.microsoft.com/ja-jp/library/cc429703.aspx
+	date, _ := r.readUint16()
+	day := int(date & 0x1f)
+	mon := time.Month(date & 0x1ef >> 5)
+	year := int(date&0xfe00>>9 + 1980)
+	t, _ := r.readUint16()
+	sec := int(t & 0x1f * 2)
+	min := int(t & 0x7e0 >> 5)
+	hour := int(t & 0xf800 >> 11)
+	h.Time = time.Date(year, mon, day, hour, min, sec, 0, time.Local)
+	h.Attribute, _ = r.readUint8()
+	h.Level, _ = r.readUint8()
+	flen, _ := r.readUint8()
+	h.Name, _ = r.readStringN(int(flen))
+	println(flen, h.Name)
+	*(*uint16)(&h.CRC), _ = r.readUint16()
+
+	// FIXME: consider 64bit length.
+	println("r.cnt", r.cnt)
+	if remain := int(h.Size+2) - int(r.cnt); remain > 0 {
+		r.skip(remain)
+	}
+	if r.err != nil {
+		return nil, r.err
+	}
+	return h, nil
 }
 
 func readHeaderLv1(r *Reader) (*Header, error) {

@@ -25,9 +25,9 @@ func (b *bits) skip(nbits uint) error {
 }
 
 func (b *bits) peek(nbits uint) (uint64, error) {
-	if nbits > b.n {
-		return 0, ErrTooMuchBits
-	}
+	//if nbits > b.n {
+	//	return 0, ErrTooMuchBits
+	//}
 	d := b.v >> (64 - nbits)
 	return d, nil
 }
@@ -55,7 +55,7 @@ func (b *bits) get(n uint) (bool, error) {
 	if n >= b.n {
 		return false, ErrTooMuchBits
 	}
-	v := b.v & (1 << (63 - n)) != 0
+	v := b.v&(1<<(63-n)) != 0
 	return v, nil
 }
 
