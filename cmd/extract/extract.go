@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/koron/go-lha"
+	"github.com/dictav/go-lha"
 )
 
 func extract(r *lha.Reader, h *lha.Header) error {

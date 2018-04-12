@@ -3,7 +3,7 @@ package lzhuff
 import (
 	"io"
 
-	"github.com/koron/go-lha/bitio"
+	"github.com/dictav/go-lha/bitio"
 )
 
 const (
