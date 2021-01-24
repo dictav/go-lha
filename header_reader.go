@@ -23,10 +23,9 @@ func readHeaderLv0(r *Reader) (*Header, error) {
 	size, _ := r.readUint8()
 	h.Size = uint16(size)
 	_, _ = r.readUint8()
-	//hhcs := uint16(hcs)
-	//h.HeaderCRC = &hhcs
+	// hhcs := uint16(hcs)
+	// h.HeaderCRC = &hhcs
 	h.Method, _ = r.readStringN(5)
-	println("method", h.Method)
 	packedSize, _ := r.readUint32()
 	h.PackedSize = uint64(packedSize)
 	originalSize, _ := r.readUint32()
@@ -46,11 +45,9 @@ func readHeaderLv0(r *Reader) (*Header, error) {
 	h.Level, _ = r.readUint8()
 	flen, _ := r.readUint8()
 	h.Name, _ = r.readStringN(int(flen))
-	println(flen, h.Name)
 	*(*uint16)(&h.CRC), _ = r.readUint16()
 
 	// FIXME: consider 64bit length.
-	println("r.cnt", r.cnt)
 	if remain := int(h.Size+2) - int(r.cnt); remain > 0 {
 		r.skip(remain)
 	}
